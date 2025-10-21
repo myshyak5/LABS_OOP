@@ -60,4 +60,3 @@ if __name__ == "__main__":
         printer.print("ABIC")
     with Printer(color=Color.BLUE, position=(14, 1), symbol="@", font_file="font5.json") as printer:
         printer.print("ABCDE")
-
