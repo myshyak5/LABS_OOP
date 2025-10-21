@@ -56,7 +56,8 @@ if __name__ == "__main__":
     CLEAR = "\033[2J\033[H"
     print(CLEAR, end='')
     Printer.static_print(text="ABIC", color=Color.RED, position=(2, 1), symbol="*", font_file="font5.json")
-    with Printer(color=Color.GREEN, position=(7, 1), symbol="#", font_file="font5.json") as printer:
+    with Printer(color=Color.GREEN, position=(7, 1), symbol="#", font_file="font7.json") as printer:
         printer.print("ABIC")
-    with Printer(color=Color.BLUE, position=(12, 1), symbol="@", font_file="font5.json") as printer:
+    with Printer(color=Color.BLUE, position=(14, 1), symbol="@", font_file="font5.json") as printer:
+
         printer.print("ABCDE")
