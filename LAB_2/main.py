@@ -1,7 +1,6 @@
 import json
 from enum import Enum
-from typing import Tuple, Dict, List
-
+from typing import Tuple
 class Color(Enum):
     RESET = "\033[0m"
     RED = "\033[31m"
@@ -14,15 +13,13 @@ class Printer:
         self.color = color
         self.position = position
         self.symbol = symbol
-        self.font = self.load_font(font_file)
+        with open(font_file, "r", encoding = "utf-8") as f:
+            self.font = json.load(f)
         self.original_position = None
-    def load_font(self, font_file: str) -> Dict[str, List[str]]:
-        with open(font_file, "r", encoding="utf-8") as f:
-            return json.load(f)
-    def move_cursor(self, position: Tuple[int, int]):
+    def move_cursor(self, position: Tuple[int, int]) -> None:
         row, col = position
         print(f"\033[{row};{col}H", end="")
-    def print_char(self, char: str, base_row: int, base_col: int):
+    def print_char(self, char: str, base_row: int, base_col: int) -> None:
         char = char.upper()
         if char not in self.font:
             return
@@ -31,7 +28,7 @@ class Printer:
             self.move_cursor((base_row + i, base_col))
             pseudo_line = line.replace('*', self.symbol)
             print(f"{self.color.value}{pseudo_line}{Color.RESET.value}", end="")
-    def print(self, text: str):
+    def print(self, text: str) -> None:
         base_row, base_col = self.position
         for char in text:
             self.print_char(char, base_row, base_col)
@@ -48,7 +45,7 @@ class Printer:
         print(Color.RESET.value, end="")
         self.move_cursor(self.original_position)
     @classmethod
-    def static_print(cls, text: str, color: Color, position: Tuple[int, int], symbol: str, font_file: str):
+    def static_print(cls, text: str, color: Color, position: Tuple[int, int], symbol: str, font_file: str) -> None:
         printer = cls(color, position, symbol, font_file)
         printer.print(text)
 
