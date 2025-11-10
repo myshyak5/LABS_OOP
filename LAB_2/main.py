@@ -9,7 +9,7 @@ class Color(Enum):
     BLUE = "\033[34m"
     WHITE = "\033[37m"
 class Printer:
-    def __init__(self, color: Color, position: Tuple[int, int], symbol: str, font_file: str):
+    def __init__(self, color: Color, position: Tuple[int, int], symbol: str, font_file: str) -> None:
         self.color = color
         self.position = position
         self.symbol = symbol
@@ -38,10 +38,10 @@ class Printer:
         if char in self.font and self.font[char]:
             return len(self.font[char][0])
         return 1
-    def __enter__(self):
+    def __enter__(self) -> 'Printer':
         self.original_position = (0, 1)
         return self
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         print(Color.RESET.value, end="")
         self.move_cursor(self.original_position)
     @classmethod
