@@ -70,7 +70,9 @@ public:
         return Angle(m_rad * factor);
     }
     Angle operator/(double divisor) const {
-        if (divisor == 0) { throw std::invalid_argument("Division by zero"); }
+        if (divisor == 0) { 
+            throw std::invalid_argument("Division by zero"); 
+        }
         return Angle(m_rad / divisor);
     }
     std::string str() const {
@@ -117,7 +119,8 @@ public:
     AngleRange(const Angle& start, const Angle& end, bool in_start = true, bool in_end = true):
         m_start(start), m_end(end), m_in_start(in_start), m_in_end(in_end) {}
     AngleRange(double start_rad, double end_rad, bool in_start = true, bool in_end = true):
-        m_start(Angle::from_radians(start_rad)), m_end(Angle::from_radians(end_rad)), m_in_start(in_start), m_in_end(in_end) {}
+        m_start(Angle::from_radians(start_rad)), m_end(Angle::from_radians(end_rad)), 
+        m_in_start(in_start), m_in_end(in_end) {}
     double length() const {
         double len = m_end.getRadians() - m_start.getRadians();
         if (len < 0) {
@@ -141,14 +144,16 @@ public:
     }
     std::vector<AngleRange> operator+(const AngleRange& other) const {
         std::vector<AngleRange> result;
-        if (this->contains(other.m_start) || this->contains(other.m_end) || other.contains(m_start) || other.contains(m_end)) {
-            Angle start = (m_start < other.m_start) ? m_start : other.m_start;
-            Angle end = (m_end > other.m_end) ? m_end : other.m_end;
+        if (!(m_end < other.m_start || other.m_end < m_start)) {
+            // Промежутки пересекаются - объединяем в один
+            Angle new_start = (m_start < other.m_start) ? m_start : other.m_start;
+            Angle new_end = (m_end > other.m_end) ? m_end : other.m_end;
+            // Определяем включение границ
             bool new_in_start = (m_start < other.m_start) ? m_in_start : other.m_in_start;
             bool new_in_end = (m_end > other.m_end) ? m_in_end : other.m_in_end;
-            result.push_back(AngleRange(start, end, new_in_start, new_in_end));
-        }
-        else {
+            result.push_back(AngleRange(new_start, new_end, new_in_start, new_in_end));
+        } else {
+            // Промежутки не пересекаются - возвращаем оба
             result.push_back(*this);
             result.push_back(other);
         }
@@ -156,77 +161,110 @@ public:
     }
     std::vector<AngleRange> operator-(const AngleRange& other) const {
         std::vector<AngleRange> result;
-        if (!this->contains(other.m_start) && !this->contains(other.m_end)) {
+        if (m_end < other.m_start || other.m_end < m_start) {
             result.push_back(*this);
             return result;
         }
         if (other.contains(*this)) {
             return result;
         }
-        if (this->contains(other)) {
-            if (m_start < other.m_start) {
+        if (contains(other)) {
+            if (m_start < other.m_start || (m_start == other.m_start && m_in_start && !other.m_in_start)) {
                 result.push_back(AngleRange(m_start, other.m_start, m_in_start, !other.m_in_start));
             }
-            if (other.m_end < m_end) {
+            if (other.m_end < m_end || (other.m_end == m_end && !other.m_in_end && m_in_end)) {
                 result.push_back(AngleRange(other.m_end, m_end, !other.m_in_end, m_in_end));
             }
             return result;
         }
-        if (this->contains(other.m_start)) {
+        if (contains(other.m_start)) {
             result.push_back(AngleRange(m_start, other.m_start, m_in_start, !other.m_in_start));
         }
-        if (this->contains(other.m_end)) {
+        else if (contains(other.m_end)) {
             result.push_back(AngleRange(other.m_end, m_end, !other.m_in_end, m_in_end));
         }
         return result;
-    }   
+    }
     std::string str() const {
         return (m_in_start ? "[" : "(") + m_start.str() + "; " + m_end.str() + (m_in_end ? "]" : ")");
     }
     std::string repr() const {
-        return "AngleRange(" + m_start.repr() + ", " + m_end.repr() + ", " + (m_in_start ? "true" : "false") + ", " + (m_in_end ? "true" : "false") + ")";
+        return "AngleRange(" + m_start.repr() + ", " + m_end.repr() + ", " + 
+               (m_in_start ? "true" : "false") + ", " + (m_in_end ? "true" : "false") + ")";
     }
 };
 
 int main() {
     Angle a1 = Angle::from_degrees(90);
     Angle a2 = Angle::from_radians(PI / 2);
+    Angle a3 = Angle::from_degrees(45);
+    Angle a4 = Angle::from_degrees(180);
     
     std::cout << "a1: " << a1.str() << std::endl;
     std::cout << "a2: " << a2.str() << std::endl;
-    std::cout << "a1 == a2: " << (a1 == a2) << std::endl;
+    std::cout << "a3: " << a3.str() << std::endl;
+    std::cout << "a4: " << a4.str() << std::endl;
     
-    AngleRange range1(Angle::from_degrees(0), Angle::from_degrees(90), true, false);
-    AngleRange range2(Angle::from_degrees(60), Angle::from_degrees(180), true, true);
+    std::cout << "a1 == a2: " << (a1 == a2) << std::endl;
+    std::cout << "a1 != a3: " << (a1 != a3) << std::endl;
+    std::cout << "a3 < a1: " << (a3 < a1) << std::endl;
+    
+    Angle sum = a1 + a3;
+    Angle diff = a4 - a1;
+    Angle mult = a1 * 2;
+    Angle div = a4 / 2;
+    
+    std::cout << "a1 + a3 = " << sum.str() << std::endl;
+    std::cout << "a4 - a1 = " << diff.str() << std::endl;
+    std::cout << "a1 * 2 = " << mult.str() << std::endl;
+    std::cout << "a4 / 2 = " << div.str() << std::endl;
+    
+    std::cout << "a1 float: " << float(a1) << std::endl;
+    std::cout << "a1 int: " << int(a1) << std::endl;
+    std::cout << "a1 string: " << std::string(a1) << std::endl;
+    std::cout << "repr a1: " << a1.repr() << std::endl;
+    
+    AngleRange range1(Angle::from_degrees(0), Angle::from_degrees(359), true, true);
+    AngleRange range2(Angle::from_degrees(60), Angle::from_degrees(120), true, false);
+    AngleRange range3(Angle::from_degrees(270), Angle::from_degrees(45), false, true); // Через границу
     
     std::cout << "range1: " << range1.str() << std::endl;
     std::cout << "range2: " << range2.str() << std::endl;
+    std::cout << "range3: " << range3.str() << std::endl;
+    
     std::cout << "range1 length: " << range1.length() << " rad" << std::endl;
     std::cout << "range2 length: " << range2.length() << " rad" << std::endl;
+    std::cout << "range3 length: " << range3.length() << " rad" << std::endl;
     
     std::cout << "a1 in range1: " << range1.contains(a1) << std::endl;
     std::cout << "a1 in range2: " << range2.contains(a1) << std::endl;
-
-    std::vector<AngleRange> range1p2 = range1 + range2;
-    std::vector<AngleRange> range1m2 = range1 - range2;
+    std::cout << "a3 in range1: " << range1.contains(a3) << std::endl;
+    std::cout << "a4 in range1: " << range1.contains(a4) << std::endl;
+    
+    std::cout << "range1 in range2: " << range2.contains(range1) << std::endl;
+    
+    std::vector<AngleRange> r1p2 = range1 + range2;
+    std::vector<AngleRange> r1m2 = range1 - range2;
     
     std::cout << "range1 + range2: ";
-    for (size_t i = 0; i < range1p2.size(); ++i) {
-        std::cout << range1p2[i].str();
-        if (i < range1p2.size() - 1) {
-            std::cout << " + ";
+    for (size_t i = 0; i < r1p2.size(); ++i) {
+        std::cout << r1p2[i].str();
+        if (i < r1p2.size() - 1) {
+            std::cout << " U ";
         }
     }
     std::cout << std::endl;
-    
     std::cout << "range1 - range2: ";
-    for (size_t i = 0; i < range1m2.size(); ++i) {
-        std::cout << range1m2[i].str();
-        if (i < range1m2.size() - 1) {
-            std::cout << " + ";
+    for (size_t i = 0; i < r1m2.size(); ++i) {
+        std::cout << r1m2[i].str();
+        if (i < r1m2.size() - 1) {
+            std::cout << " U ";
         }
     }
     std::cout << std::endl;
+    AngleRange range1_copy(range1);
+    std::cout << "range1 == range1_copy: " << (range1 == range1_copy) << std::endl;
+    std::cout << "range1 != range2: " << (range1 != range2) << std::endl;
     
     return 0;
 }
