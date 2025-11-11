@@ -107,11 +107,9 @@ class Logger:
     def log_error(self, text: str) -> None:
         self.log(LogLevel.ERROR, text)
 def demonstrate_logging_system():
-    # Создаем различные фильтры
     simple_filter = SimpleLogFilter("important")
     regex_filter = ReLogFilter(r"error|warning")
     level_filter = LevelFilter(LogLevel.WARN)  # Только WARN и ERROR
-    # Создаем обработчики
     console_handler = ConsoleHandler()
     file_handler = FileHandler("app.log")
     formatter = StandardFormatter()
@@ -150,7 +148,6 @@ def demonstrate_logging_system():
     combined_logger.log_warn("warning: important - должно появиться")
     combined_logger.log_error("error: important - должно появиться")
     
-    # Демонстрация FTP handler (для демонстрации без реального FTP)
     print("\n7. Демонстрация FTP handler (буферизация):")
     ftp_handler = FtpHandler("example.com", "user", "pass", "/logs/app.log")
     ftp_logger = Logger(handlers=[console_handler, ftp_handler])
