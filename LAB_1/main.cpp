@@ -180,7 +180,7 @@ public:
         if (contains(other.m_start)) {
             result.push_back(AngleRange(m_start, other.m_start, m_in_start, !other.m_in_start));
         }
-        else if (contains(other.m_end)) {
+        if (contains(other.m_end)) {
             result.push_back(AngleRange(other.m_end, m_end, !other.m_in_end, m_in_end));
         }
         return result;
@@ -268,3 +268,4 @@ int main() {
     
     return 0;
 }
+
