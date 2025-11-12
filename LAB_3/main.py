@@ -87,10 +87,10 @@ class StandardFormatter(ILogFormatter):
         data = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
         return f"[{log_level.value}] [{data}] {text}"
 class Logger:
-    def __init__(self, filters: Optional[List[ILogFilter]] = None, formatters: Optional[List[ILogFormatter]] = None, handlers: Optional[List[ILogHandler]] = None) -> None:
-        self.filters = filters or []
-        self.formatters = formatters or [StandardFormatter()]
-        self.handlers = handlers or [ConsoleHandler()]
+    def __init__(self, filters: Optional[List[ILogFilter]], formatters: Optional[List[ILogFormatter]], handlers: Optional[List[ILogHandler]]) -> None:
+        self.filters = filters
+        self.formatters = formatters
+        self.handlers = handlers
     def log(self, log_level: LogLevel, text: str) -> None:
         for filter_obj in self.filters:
             if not filter_obj.match(log_level, text):
@@ -107,42 +107,42 @@ class Logger:
     def log_error(self, text: str) -> None:
         self.log(LogLevel.ERROR, text)
 def demonstrate_logging_system():
+    formatter = StandardFormatter()
+    console_handler = ConsoleHandler()
+    file_handler = FileHandler("app.log")
     simple_filter = SimpleLogFilter("important")
     regex_filter = ReLogFilter(r"error|warning")
     level_filter = LevelFilter(LogLevel.WARN)  # Только WARN и ERROR
-    console_handler = ConsoleHandler()
-    file_handler = FileHandler("app.log")
-    formatter = StandardFormatter()
 
     print("1. Простой логгер (только консоль):")
-    simple_logger = Logger(handlers=[console_handler])
+    simple_logger = Logger(filters=[], formatters=[formatter], handlers=[console_handler])
     simple_logger.log_info("Это информационное сообщение")
     simple_logger.log_warn("Это предупреждение")
     simple_logger.log_error("Это ошибка")
     
     print("\n2. Логгер с фильтром по уровню (только WARN и ERROR):")
-    level_logger = Logger(filters=[level_filter], handlers=[console_handler])
+    level_logger = Logger(filters=[level_filter], formatters=[formatter], handlers=[console_handler])
     level_logger.log_info("Это сообщение не должно появиться")
     level_logger.log_warn("Это предупреждение должно появиться")
     level_logger.log_error("Эта ошибка должна появиться")
     
     print("\n3. Логгер с фильтром по тексту (только 'important'):")
-    text_logger = Logger(filters=[simple_filter], handlers=[console_handler])
+    text_logger = Logger(filters=[simple_filter], formatters=[formatter], handlers=[console_handler])
     text_logger.log_info("Обычное сообщение")
     text_logger.log_info("Важное important сообщение")
     
     print("\n4. Логгер с фильтром по регулярному выражению:")
-    regex_logger = Logger(filters=[regex_filter], handlers=[console_handler])
+    regex_logger = Logger(filters=[regex_filter], formatters=[formatter], handlers=[console_handler])
     regex_logger.log_info("Обычное сообщение")
     regex_logger.log_warn("Сообщение с warning")
     regex_logger.log_error("Сообщение с Error")
     
     print("\n5. Логгер в файл и консоль:")
-    multi_handler_logger = Logger(handlers=[console_handler, file_handler])
+    multi_handler_logger = Logger(filters=[], formatters=[formatter], handlers=[console_handler, file_handler])
     multi_handler_logger.log_info("Сообщение в консоль и файл")
     
     print("\n6. Комбинированные фильтры (уровень + текст):")
-    combined_logger = Logger(filters=[level_filter, simple_filter], handlers=[console_handler])
+    combined_logger = Logger(filters=[level_filter, simple_filter], formatters=[formatter], handlers=[console_handler])
     combined_logger.log_info("info: не должно появиться")
     combined_logger.log_warn("warning: не должно появиться") 
     combined_logger.log_warn("warning: important - должно появиться")
@@ -150,7 +150,7 @@ def demonstrate_logging_system():
     
     print("\n7. Демонстрация FTP handler (буферизация):")
     ftp_handler = FtpHandler("example.com", "user", "pass", "/logs/app.log")
-    ftp_logger = Logger(handlers=[console_handler, ftp_handler])
+    ftp_logger = Logger(filters=[], formatters=[formatter], handlers=[console_handler, ftp_handler])
     ftp_logger.log_info("Сообщение для FTP")
     print(f"В буфере FTP: {len(ftp_handler.buffer)} сообщений")
 if __name__ == "__main__":
