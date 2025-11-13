@@ -70,6 +70,7 @@ class Printer:
         printer = cls(color, position, symbol, font_file)
         printer.print(text)
 
+
 if __name__ == "__main__":
     print(Color.CLEAR.value, end="")
     Printer.static_print(text="ABIC", 
