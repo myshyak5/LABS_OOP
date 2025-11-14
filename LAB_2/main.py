@@ -2,7 +2,6 @@ import json
 from enum import Enum
 from typing import Tuple
 
-
 class Color(Enum):
     CLEAR = "\033[2J\033[H"
     RESET = "\033[0m"
@@ -21,10 +20,16 @@ class Printer:
         self.color = color
         self.position = position
         self.symbol = symbol
-        with open(font_file, "r", encoding = "utf-8") as f:
-            self.font = json.load(f)
         self.original_position = None
-
+        try:
+            with open(font_file, "r", encoding="utf-8") as f:
+                self.font = json.load(f)
+        except FileNotFoundError:
+            row, col = position
+            print(f"\033[{row};{col}H", end="")
+            print(f"ОШИБКА: Файл {font_file} не найден")
+            raise SystemExit(1)
+        
     def move_cursor(self, position: Tuple[int, int]) -> None:
         row, col = position
         print(f"\033[{row};{col}H", end="")
@@ -74,11 +79,11 @@ class Printer:
 if __name__ == "__main__":
     print(Color.CLEAR.value, end="")
     Printer.static_print(text="ABIC", 
-                         color=Color.RED, 
-                         position=(2, 1), 
-                         symbol="*", 
-                         font_file="font5.json")
-    with Printer(color=Color.GREEN, position=(7, 1), symbol="#", font_file="font7.json") as printer:
-        printer.print("ABIC")
-    with Printer(color=Color.BLUE, position=(14, 1), symbol="@", font_file="font5.json") as printer:
+                        color=Color.RED, 
+                        position=(2, 1), 
+                        symbol="*", 
+                        font_file="font5.json")
+    with Printer(color=Color.BLUE, position=(7, 1), symbol="@", font_file="font5.json") as printer:
         printer.print("ABCDE")
+    with Printer(color=Color.GREEN, position=(12, 1), symbol="#", font_file="font7.json") as printer:
+        printer.print("ABIC")
