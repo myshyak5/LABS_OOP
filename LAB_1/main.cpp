@@ -75,7 +75,7 @@ public:
         return Angle(m_rad / divisor);
     }
     std::string str() const {
-        return std::to_string(getDegrees());
+        return std::to_string(getDegrees()) + " deg";
     }
     std::string repr() const {
         return "Angle(" + std::to_string(m_rad) + " rad)";
@@ -106,10 +106,6 @@ public:
     }
     friend Angle operator*(float factor, const Angle& other) {
         return Angle(factor * other.m_rad);
-    }
-    friend std::ostream& operator<<(std::ostream& os, const Angle& other) {
-        os << other.str();
-        return os;
     }
 };
 
@@ -199,10 +195,6 @@ public:
         return "AngleRange(" + m_start.repr() + ", " + m_end.repr() + ", " + 
                (m_in_start ? "true" : "false") + ", " + (m_in_end ? "true" : "false") + ")";
     }
-    friend std::ostream& operator<<(std::ostream& os, const AngleRange& other) {
-        os << other.str();
-        return os;
-    }
 };
 
 int main() {
@@ -211,49 +203,47 @@ int main() {
     Angle a3 = Angle::from_degrees(45);
     Angle a4 = Angle::from_degrees(180);
     
-    std::cout << a1 << ": " << a1.repr() << std::endl;
-    std::cout << a2 << ": " << a2.repr() << std::endl;
-    std::cout << a3 << ": " << a3.repr() << std::endl;
-    std::cout << a4 << ": " << a4.repr() << std::endl;
+    std::cout << a1.str() << ": " << a1.repr() << std::endl;
+    std::cout << a2.str() << ": " << a2.repr() << std::endl;
+    std::cout << a3.str() << ": " << a3.repr() << std::endl;
+    std::cout << a4.str() << ": " << a4.repr() << std::endl;
     
-    std::cout << a1 << " == " << a2 << ": " << (a1 == a2) << std::endl;
-    std::cout << a1 << " > " << a3 << ": " << (a1 > a3) << std::endl;
-    std::cout << a3 << " < " << a1 << ": " << (a3 < a1) << std::endl;
+    std::cout << a1.str() << " == " << a2.str() << ": " << (a1 == a2) << std::endl;
+    std::cout << a1.str() << " > " << a3.str() << ": " << (a1 > a3) << std::endl;
+    std::cout << a3.str() << " < " << a1.str() << ": " << (a3 < a1) << std::endl;
     
     Angle sum = a1 + a3;
     Angle diff = a4 - a1;
     Angle mult = a1 * 2;
     Angle div = a4 / 2;
     
-    std::cout << a1 << " + " << a3 << " = " << sum.str() << std::endl;
-    std::cout << a4 << " - " << a1 << " = " << diff.str() << std::endl;
-    std::cout << a1 << " * 2 = " << mult.str() << std::endl;
-    std::cout << a4 << " / 2 = " << div.str() << std::endl;
+    std::cout << a1.str() << " + " << a3.str() << " = " << sum.str() << std::endl;
+    std::cout << a4.str() << " - " << a1.str() << " = " << diff.str() << std::endl;
+    std::cout << a1.str() << " * 2 = " << mult.str() << std::endl;
+    std::cout << a4.str() << " / 2 = " << div.str() << std::endl;
     
-    std::cout << a1 << " float: " << float(a1) << std::endl;
-    std::cout << a1 << " int: " << int(a1) << std::endl;
-    std::cout << a1 << " string: " << std::string(a1) << std::endl;
-    std::cout << a1 << " repr: " << a1.repr() << std::endl;
+    std::cout << a1.str() << " float: " << float(a1) << std::endl;
+    std::cout << a1.str() << " int: " << int(a1) << std::endl;
+    std::cout << a1.str() << " string: " << std::string(a1) << std::endl;
+    std::cout << a1.str() << " repr: " << a1.repr() << std::endl;
     
     AngleRange range1(Angle::from_degrees(0), Angle::from_degrees(179), true, true);
     AngleRange range2(Angle::from_degrees(60), Angle::from_degrees(120), true, false);
-    AngleRange range3(Angle::from_degrees(270), Angle::from_degrees(45), false, true); // Через границу
     
-    std::cout << range1 << " length: " << range1.length() << " rad" << std::endl;
-    std::cout << range2 << " length: " << range2.length() << " rad" << std::endl;
-    std::cout << range3 << " length: " << range3.length() << " rad" << std::endl;
+    std::cout << range1.str() << " length: " << range1.length() << " rad" << std::endl;
+    std::cout << range2.str() << " length: " << range2.length() << " rad" << std::endl;
     
-    std::cout << a1 <<  " in " << range1 << ": " << range1.contains(a1) << std::endl;
-    std::cout << a1 << " in " << range2 << ": " << range2.contains(a1) << std::endl;
-    std::cout << a3 << " in " << range1 << ": " << range1.contains(a3) << std::endl;
-    std::cout << a4 << " in " << range1 << ": " << range1.contains(a4) << std::endl;
+    std::cout << a1.str() <<  " in " << range1.str() << ": " << range1.contains(a1) << std::endl;
+    std::cout << a1.str() << " in " << range2.str() << ": " << range2.contains(a1) << std::endl;
+    std::cout << a3.str() << " in " << range1.str() << ": " << range1.contains(a3) << std::endl;
+    std::cout << a4.str() << " in " << range1.str() << ": " << range1.contains(a4) << std::endl;
     
-    std::cout << range1 << " in " << range2 << ": " << range2.contains(range1) << std::endl;
+    std::cout << range1.str() << " in " << range2.str() << ": " << range2.contains(range1) << std::endl;
     
     std::vector<AngleRange> r1p2 = range1 + range2;
     std::vector<AngleRange> r1m2 = range1 - range2;
     
-    std::cout << range1 << " + "  << range2 << ": ";
+    std::cout << range1.str() << " + "  << range2.str() << ": ";
     for (size_t i = 0; i < r1p2.size(); ++i) {
         std::cout << r1p2[i].str();
         if (i < r1p2.size() - 1) {
@@ -262,7 +252,7 @@ int main() {
     }
     std::cout << std::endl;
 
-    std::cout << range1 << " - "  << range2 << ": ";
+    std::cout << range1.str() << " - "  << range2.str() << ": ";
     for (size_t i = 0; i < r1m2.size(); ++i) {
         std::cout << r1m2[i].str();
         if (i < r1m2.size() - 1) {
@@ -272,8 +262,8 @@ int main() {
     std::cout << std::endl;
 
     AngleRange range1_copy(range1);
-    std::cout << range1 << " == " << range1_copy << ": " << (range1 == range1_copy) << std::endl;
-    std::cout << range1  << " != " << range2 <<  ": " << (range1 != range2) << std::endl;
+    std::cout << range1.str() << " == " << range1_copy.str() << ": " << (range1 == range1_copy) << std::endl;
+    std::cout << range1.str()  << " != " << range2.str() <<  ": " << (range1 != range2) << std::endl;
     
     return 0;
 }
