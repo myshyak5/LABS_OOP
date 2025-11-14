@@ -19,23 +19,13 @@ public:
     Angle(float rad): m_rad(normalize(rad)) {}
     Angle(const Angle& other) : m_rad(other.m_rad) {}
     Angle& operator=(const Angle& other) {
-        if (this != &other) {
-            m_rad = other.m_rad;
-        }
+        if (this != &other) { m_rad = other.m_rad; }
         return *this;
     }
-    static Angle from_radians(float rad) {
-        return Angle(rad);
-    }
-    static Angle from_degrees(int deg) {
-        return Angle(deg * M_PI / 180.0);
-    }
-    float getRadians() const {
-        return m_rad;
-    }
-    int getDegrees() const {
-        return std::round(m_rad * 180.0 / M_PI);
-    }
+    static Angle from_radians(float rad) { return Angle(rad); }
+    static Angle from_degrees(int deg) { return Angle(deg * M_PI / 180.0); }
+    float getRadians() const { return m_rad; }
+    int getDegrees() const { return std::round(m_rad * 180.0 / M_PI); }
     Angle& setRadians(float rad) {
         m_rad = normalize(rad);
         return *this;
@@ -44,69 +34,31 @@ public:
         m_rad = normalize(deg * M_PI / 180.0);
         return *this;
     }
-    explicit operator float() const {
-        return static_cast<float>(m_rad);
-    }
-    explicit operator int() const {
-        return static_cast<int>(m_rad);
-    }
-    operator std::string() const {
-        return std::to_string(m_rad);
-    }
-    Angle operator+(const Angle& other) const {
-        return Angle(m_rad + other.m_rad);
-    } 
-    Angle operator+(double rad) const {
-        return Angle(m_rad + rad);
-    }
-    Angle operator-(const Angle& other) const {
-        return Angle(m_rad - other.m_rad);
-    }
-    Angle operator-(float rad) const {
-        return Angle(m_rad - rad);
-    }
-    Angle operator*(float factor) const {
-        return Angle(m_rad * factor);
-    }
+    explicit operator float() const { return static_cast<float>(m_rad); }
+    explicit operator int() const { return static_cast<int>(m_rad); }
+    operator std::string() const { return std::to_string(m_rad); }
+    Angle operator+(const Angle& other) const { return Angle(m_rad + other.m_rad); } 
+    Angle operator+(double rad) const { return Angle(m_rad + rad); }
+    Angle operator-(const Angle& other) const { return Angle(m_rad - other.m_rad); }
+    Angle operator-(float rad) const { return Angle(m_rad - rad); }
+    Angle operator*(float factor) const { return Angle(m_rad * factor); }
     Angle operator/(float divisor) const {
         if (divisor == 0) { 
             throw std::invalid_argument("Division by zero"); 
         }
         return Angle(m_rad / divisor);
     }
-    std::string str() const {
-        return std::to_string(getDegrees()) + " deg";
-    }
-    std::string repr() const {
-        return "Angle(" + std::to_string(m_rad) + " rad)";
-    }
-    bool operator==(const Angle& other) const {
-        return std::fabs(m_rad - other.m_rad) < 1e-10;
-    }
-    bool operator!=(const Angle& other) const {
-        return !(*this == other);
-    }
-    bool operator<(const Angle& other) const {
-        return m_rad < other.m_rad;
-    }
-    bool operator>(const Angle& other) const {
-        return m_rad > other.m_rad;
-    }
-    bool operator<=(const Angle& other) const {
-        return m_rad <= other.m_rad;
-    }
-    bool operator>=(const Angle& other) const {
-        return m_rad >= other.m_rad;
-    }
-    friend Angle operator+(float rad, const Angle& other) {
-        return Angle(rad + other.m_rad);
-    }
-    friend Angle operator-(float rad, const Angle& other) {
-        return Angle(rad - other.m_rad);
-    }
-    friend Angle operator*(float factor, const Angle& other) {
-        return Angle(factor * other.m_rad);
-    }
+    std::string str() const { return std::to_string(getDegrees()) + " deg"; }
+    std::string repr() const { return "Angle(" + std::to_string(m_rad) + " rad)"; }
+    bool operator==(const Angle& other) const { return std::fabs(m_rad - other.m_rad) < 1e-10; }
+    bool operator!=(const Angle& other) const { return !(*this == other); }
+    bool operator<(const Angle& other) const { return m_rad < other.m_rad; }
+    bool operator>(const Angle& other) const { return m_rad > other.m_rad; }
+    bool operator<=(const Angle& other) const { return m_rad <= other.m_rad; }
+    bool operator>=(const Angle& other) const { return m_rad >= other.m_rad; }
+    friend Angle operator+(float rad, const Angle& other) { return Angle(rad + other.m_rad); }
+    friend Angle operator-(float rad, const Angle& other) { return Angle(rad - other.m_rad); }
+    friend Angle operator*(float factor, const Angle& other) { return Angle(factor * other.m_rad); }
 };
 
 class AngleRange {
@@ -134,9 +86,7 @@ public:
         return m_start == other.m_start && m_end == other.m_end
             && m_in_start == other.m_in_start && m_in_end == other.m_in_end;
     } 
-    bool operator!=(const AngleRange& other) const {
-        return !(*this == other);
-    }
+    bool operator!=(const AngleRange& other) const { return !(*this == other); }
     bool contains(const Angle& other) const {
         bool left_ok = m_in_start ? (other >= m_start) : (other > m_start);
         bool right_ok = m_in_end ? (other <= m_end) : (other < m_end);
