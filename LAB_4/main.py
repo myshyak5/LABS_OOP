@@ -58,22 +58,22 @@ class PropertyChangingEventArgs:
 class PropertyChangingEvent(EventHandler):
     def handle(self, sender: Any, args: PropertyChangingEventArgs) -> None:
         if args.property_name == "age" and args.new_value < 0:
-            print(f"[Validator] Возраст не может быть отрицательным! Отмена изменения.")
+            print(f"[Validator] {args.property_name} не может быть отрицательным! Отмена изменения.")
             args.can_change = False
         elif args.property_name == "email" and "@" not in str(args.new_value):
-            print(f"[Validator] Email должен содержать @! Отмена изменения.")
+            print(f"[Validator] {args.property_name} должен содержать @! Отмена изменения.")
             args.can_change = False
         elif args.property_name == "health" and (args.new_value < 0 or args.new_value > 100):
-            print(f"[Validator] Здоровье должно быть от 0 до 100! Отмена изменения.")
+            print(f"[Validator] {args.property_name} должно быть от 0 до 100! Отмена изменения.")
             args.can_change = False
         elif args.property_name == "death" and args.new_value < 0:
-            print(f"[Validator] Количество смертей не может быть отрицательным! Отмена изменения.")
+            print(f"[Validator] {args.property_name} не может быть отрицательным! Отмена изменения.")
             args.can_change = False
         elif args.property_name == "name" and len(str(args.new_value).strip()) == 0:
-            print(f"[Validator] Имя не может быть пустым! Отмена изменения.")
+            print(f"[Validator] {args.property_name} не может быть пустым! Отмена изменения.")
             args.can_change = False
         elif args.property_name == "nickname" and len(str(args.new_value).strip()) == 0:
-            print(f"[Validator] Никнейм не может быть пустым! Отмена изменения.")
+            print(f"[Validator] {args.property_name} не может быть пустым! Отмена изменения.")
             args.can_change = False
         else:
             print(f"[Validator] Изменение {args.property_name} разрешено")
@@ -99,7 +99,7 @@ class User(PropertyBase):
     @name.setter
     def name(self, value: str) -> None:
         if self._name != value:
-            changing_args = PropertyChangingEventArgs("name", self._name, value)
+            changing_args = PropertyChangingEventArgs("name", self._name, value, True)
             self.property_changing(self, changing_args)
             if changing_args.can_change:
                 self._name = value
@@ -114,7 +114,7 @@ class User(PropertyBase):
     @age.setter
     def age(self, value: int) -> None:
         if self._age != value:
-            changing_args = PropertyChangingEventArgs("age", self._age, value)
+            changing_args = PropertyChangingEventArgs("age", self._age, value, True)
             self.property_changing(self, changing_args)
             if changing_args.can_change:
                 self._age = value
@@ -129,7 +129,7 @@ class User(PropertyBase):
     @email.setter
     def email(self, value: str) -> None:
         if self._email != value:
-            changing_args = PropertyChangingEventArgs("email", self._email, value)
+            changing_args = PropertyChangingEventArgs("email", self._email, value, True)
             self.property_changing(self, changing_args)
             if changing_args.can_change:
                 self._email = value
@@ -155,7 +155,7 @@ class Player(PropertyBase):
     @nickname.setter
     def nickname(self, value: str) -> None:
         if self._nickname != value:
-            changing_args = PropertyChangingEventArgs("nickname", self._nickname, value)
+            changing_args = PropertyChangingEventArgs("nickname", self._nickname, value, True)
             self.property_changing(self, changing_args)
             if changing_args.can_change:
                 self._nickname = value
@@ -170,7 +170,7 @@ class Player(PropertyBase):
     @health.setter
     def health(self, value: int) -> None:
         if self._health != value:
-            changing_args = PropertyChangingEventArgs("health", self._health, value)
+            changing_args = PropertyChangingEventArgs("health", self._health, value, True)
             self.property_changing(self, changing_args)
             if changing_args.can_change:
                 self._health = value
@@ -185,7 +185,7 @@ class Player(PropertyBase):
     @death.setter
     def death(self, value: int) -> None:
         if self._death != value:
-            changing_args = PropertyChangingEventArgs("death", self._death, value)
+            changing_args = PropertyChangingEventArgs("death", self._death, value, True)
             self.property_changing(self, changing_args)
             if changing_args.can_change:
                 self._death = value
@@ -215,55 +215,36 @@ def main():
     print("=== ТЕСТ USER ===")
     print(f"Начальное состояние: {user}")
     
-    # Создаем аргументы с разными значениями can_change
-    args1 = PropertyChangingEventArgs("name", user.name, "Петр", True)
-    args2 = PropertyChangingEventArgs("age", user.age, 30, True) 
-    args3 = PropertyChangingEventArgs("email", user.email, "petr@example.com", True)
-    
-    # Вызываем события с аргументами
-    user.property_changing(user, args1)
-    user.property_changing(user, args2)
-    user.property_changing(user, args3)
+    # ИСПРАВЛЕНО: используем сеттеры вместо прямого вызова событий
+    print("\n--- Корректные изменения User ---")
+    user.name = "Петр"  # Это вызовет сеттер и изменит значение
+    user.age = 30       # Это вызовет сеттер и изменит значение
+    user.email = "petr@example.com"  # Это вызовет сеттер и изменит значение
     
     print("\n--- Некорректные значения User ---")
-    # Аргументы с can_change=False
-    args4 = PropertyChangingEventArgs("age", user.age, -5, False)
-    args5 = PropertyChangingEventArgs("email", user.email, "invalid-email", False)
-    args6 = PropertyChangingEventArgs("name", user.name, "", False)
-    
-    user.property_changing(user, args4)
-    user.property_changing(user, args5) 
-    user.property_changing(user, args6)
+    user.age = -5           # Должно быть отклонено валидатором
+    user.email = "invalid-email"  # Должно быть отклонено валидатором
+    user.name = ""          # Должно быть отклонено валидатором
     
     print(f"\nФинальное состояние: {user}")
     
     print("\n=== ТЕСТ PLAYER ===")
     print(f"Начальное состояние: {player}")
     
-    # Аргументы для Player
-    args7 = PropertyChangingEventArgs("nickname", player.nickname, "ProPlayer", True)
-    args8 = PropertyChangingEventArgs("health", player.health, 90, True)
-    args9 = PropertyChangingEventArgs("death", player.death, 5, True)
-    
-    player.property_changing(player, args7)
-    player.property_changing(player, args8)
-    player.property_changing(player, args9)
+    # ИСПРАВЛЕНО: используем сеттеры вместо прямого вызова событий
+    print("\n--- Корректные изменения Player ---")
+    player.nickname = "ProPlayer"  # Это вызовет сеттер и изменит значение
+    player.health = 90             # Это вызовет сеттер и изменит значение
+    player.death = 5               # Это вызовет сеттер и изменит значение
     
     print("\n--- Некорректные значения Player ---")
-    args10 = PropertyChangingEventArgs("health", player.health, 150, False)
-    args11 = PropertyChangingEventArgs("health", player.health, -10, False)
-    args12 = PropertyChangingEventArgs("death", player.death, -1, False)
-    args13 = PropertyChangingEventArgs("nickname", player.nickname, "", False)
-    
-    player.property_changing(player, args10)
-    player.property_changing(player, args11)
-    player.property_changing(player, args12)
-    player.property_changing(player, args13)
+    player.health = 150     # Должно быть отклонено валидатором
+    player.health = -10     # Должно быть отклонено валидатором
+    player.death = -1       # Должно быть отклонено валидатором
+    player.nickname = ""    # Должно быть отклонено валидатором
     
     print(f"\nФинальное состояние: {player}")
 
 
 if __name__ == '__main__':
-
     main()
-
