@@ -5,7 +5,7 @@ import socket
 import sys
 import ftplib
 from enum import Enum
-from typing import List, Optional
+from typing import List
 
 
 class LogLevel(Enum):
@@ -88,7 +88,10 @@ class SyslogHandler(ILogHandler):
 
 
 class FtpHandler(ILogHandler):
-    def __init__(self, host: str, username: str, password: str, remote_path: str) -> None:
+    def __init__(self, host: str,
+                 username: str,
+                 password: str,
+                 remote_path: str) -> None:
         self.host = host
         self.username = username
         self.password = password
@@ -122,9 +125,9 @@ class StandardFormatter(ILogFormatter):
     
 
 class Logger:
-    def __init__(self, filters: Optional[List[ILogFilter]],
-                 formatters: Optional[List[ILogFormatter]],
-                 handlers: Optional[List[ILogHandler]]) -> None:
+    def __init__(self, filters: List[ILogFilter],
+                 formatters: List[ILogFormatter],
+                 handlers: List[ILogHandler]) -> None:
         self.filters = filters
         self.formatters = formatters
         self.handlers = handlers
