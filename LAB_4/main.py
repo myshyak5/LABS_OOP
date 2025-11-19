@@ -23,8 +23,6 @@ class Event:
         return self
     
     def __call__(self, sender: Any, args: Any) -> None:
-        # handlers = self._handlers
-        # Копируем список на случай изменения во время обработки
         for handler in self._handlers:
             handler.handle(sender, args)
 
@@ -268,3 +266,4 @@ def main():
 if __name__ == '__main__':
 
     main()
+
