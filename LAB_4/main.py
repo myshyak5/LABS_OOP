@@ -86,6 +86,7 @@ class PropertyBase:
         self.property_changing = Event()
         self.property_changed = Event()
 
+
 class User(PropertyBase):
     def __init__(self, name: str, age: int, email: str) -> None:
         super().__init__()
@@ -265,4 +266,5 @@ def main():
 
 
 if __name__ == '__main__':
+
     main()
