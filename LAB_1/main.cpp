@@ -9,15 +9,13 @@ class Angle {
     float m_rad;
     float normalize(float angle_rad) const {
         angle_rad = fmod(angle_rad, 2 * M_PI);
-        if (angle_rad < 0) {
-            angle_rad += 2 * M_PI;
-        }
+        if (angle_rad < 0) { angle_rad += 2 * M_PI; }
         return angle_rad;
     }
 public:
     Angle(): m_rad(0) {}
-    Angle(float rad): m_rad(normalize(rad)) {}
-    Angle(const Angle& other) : m_rad(other.m_rad) {}
+    Angle(float rad): m_rad(rad) {}
+    Angle(const Angle& other): m_rad(other.m_rad) {}
     Angle& operator=(const Angle& other) {
         if (this != &other) { m_rad = other.m_rad; }
         return *this;
@@ -27,11 +25,11 @@ public:
     float getRadians() const { return m_rad; }
     int getDegrees() const { return std::round(m_rad * 180.0 / M_PI); }
     Angle& setRadians(float rad) {
-        m_rad = normalize(rad);
+        m_rad = rad;
         return *this;
     }
     Angle& setDegrees(float deg) {
-        m_rad = normalize(deg * M_PI / 180.0);
+        m_rad = deg * M_PI / 180.0;
         return *this;
     }
     explicit operator float() const { return static_cast<float>(m_rad); }
@@ -43,19 +41,29 @@ public:
     Angle operator-(float rad) const { return Angle(m_rad - rad); }
     Angle operator*(float factor) const { return Angle(m_rad * factor); }
     Angle operator/(float divisor) const {
-        if (divisor == 0) { 
-            throw std::invalid_argument("Division by zero"); 
-        }
+        if (divisor == 0) { throw std::invalid_argument("Division by zero"); }
         return Angle(m_rad / divisor);
     }
     std::string str() const { return std::to_string(getDegrees()) + " deg"; }
     std::string repr() const { return "Angle(" + std::to_string(m_rad) + " rad)"; }
-    bool operator==(const Angle& other) const { return std::fabs(m_rad - other.m_rad) < 1e-10; }
-    bool operator!=(const Angle& other) const { return !(*this == other); }
-    bool operator<(const Angle& other) const { return m_rad < other.m_rad; }
-    bool operator>(const Angle& other) const { return m_rad > other.m_rad; }
-    bool operator<=(const Angle& other) const { return m_rad <= other.m_rad; }
-    bool operator>=(const Angle& other) const { return m_rad >= other.m_rad; }
+    bool operator==(const Angle& other) const {
+        return std::fabs(normalize(m_rad) - normalize(other.m_rad)) < 1e-6f;
+    }
+    bool operator!=(const Angle& other) const {
+        return !(*this == other);
+    }
+    bool operator<(const Angle& other) const {
+        return normalize(m_rad) < normalize(other.m_rad);
+    }
+    bool operator>(const Angle& other) const {
+        return normalize(m_rad) > normalize(other.m_rad);
+    }
+    bool operator<=(const Angle& other) const {
+        return !(*this > other);
+    }
+    bool operator>=(const Angle& other) const {
+        return !(*this < other);
+    }
     friend Angle operator+(float rad, const Angle& other) { return Angle(rad + other.m_rad); }
     friend Angle operator-(float rad, const Angle& other) { return Angle(rad - other.m_rad); }
     friend Angle operator*(float factor, const Angle& other) { return Angle(factor * other.m_rad); }
@@ -77,9 +85,7 @@ public:
         m_in_start(in_start), m_in_end(in_end) {}
     double length() const {
         float len = m_end.getRadians() - m_start.getRadians();
-        if (len < 0) {
-            len += 2 * M_PI;
-        }
+        if (len < 0) { len += 2 * M_PI; }
         return len;
     }
     bool operator==(const AngleRange& other) const {
@@ -116,9 +122,7 @@ public:
             result.push_back(*this);
             return result;
         }
-        if (other.contains(*this)) {
-            return result;
-        }
+        if (other.contains(*this)) { return result; }
         if (contains(other)) {
             if (m_start < other.m_start ||
                 (m_start == other.m_start && m_in_start && !other.m_in_start)) {
@@ -151,16 +155,19 @@ int main() {
     Angle a1 = Angle::from_degrees(90);
     Angle a2 = Angle::from_radians(M_PI / 2);
     Angle a3 = Angle::from_degrees(45);
-    Angle a4 = Angle::from_degrees(180);
+    Angle a4 = Angle::from_degrees(0);
+    Angle a5 = Angle::from_degrees(360);
     
     std::cout << a1.str() << ": " << a1.repr() << std::endl;
     std::cout << a2.str() << ": " << a2.repr() << std::endl;
     std::cout << a3.str() << ": " << a3.repr() << std::endl;
     std::cout << a4.str() << ": " << a4.repr() << std::endl;
+    std::cout << a5.str() << ": " << a5.repr() << std::endl;
     
     std::cout << a1.str() << " == " << a2.str() << ": " << (a1 == a2) << std::endl;
     std::cout << a1.str() << " > " << a3.str() << ": " << (a1 > a3) << std::endl;
     std::cout << a3.str() << " < " << a1.str() << ": " << (a3 < a1) << std::endl;
+    std::cout << a4.str() << " == " << a5.str() << ": " << (a4 == a5) << std::endl;
     
     Angle sum = a1 + a3;
     Angle diff = a4 - a1;
@@ -179,9 +186,11 @@ int main() {
     
     AngleRange range1(Angle::from_degrees(0), Angle::from_degrees(179), true, true);
     AngleRange range2(Angle::from_degrees(60), Angle::from_degrees(120), true, false);
+    AngleRange range3(Angle::from_degrees(60), Angle::from_degrees(360), true, true);
     
     std::cout << range1.str() << " length: " << range1.length() << " rad" << std::endl;
     std::cout << range2.str() << " length: " << range2.length() << " rad" << std::endl;
+    std::cout << range3.str() << " length: " << range3.length() << " rad" << std::endl;
     
     std::cout << a1.str() <<  " in " << range1.str() << ": " << range1.contains(a1) << std::endl;
     std::cout << a1.str() << " in " << range2.str() << ": " << range2.contains(a1) << std::endl;
@@ -196,18 +205,14 @@ int main() {
     std::cout << range1.str() << " + "  << range2.str() << ": ";
     for (size_t i = 0; i < r1p2.size(); ++i) {
         std::cout << r1p2[i].str();
-        if (i < r1p2.size() - 1) {
-            std::cout << " U ";
-        }
+        if (i < r1p2.size() - 1) { std::cout << " U "; }
     }
     std::cout << std::endl;
 
     std::cout << range1.str() << " - "  << range2.str() << ": ";
     for (size_t i = 0; i < r1m2.size(); ++i) {
         std::cout << r1m2[i].str();
-        if (i < r1m2.size() - 1) {
-            std::cout << " U ";
-        }
+        if (i < r1m2.size() - 1) { std::cout << " U "; }
     }
     std::cout << std::endl;
 
