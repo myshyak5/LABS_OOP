@@ -151,7 +151,7 @@ class Logger:
     def log_error(self, text: str) -> None:
         self.log(LogLevel.ERROR, text)
 
-def demonstrate_logging_system():
+def main():
     formatter = StandardFormatter()
     console_handler = ConsoleHandler()
     file_handler = FileHandler("app.log")
@@ -215,4 +215,4 @@ def demonstrate_logging_system():
 
     
 if __name__ == "__main__":
-    demonstrate_logging_system()
+    main()
