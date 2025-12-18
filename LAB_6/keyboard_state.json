@@ -1,0 +1,33 @@
+{
+  "a": {
+    "type": "KeyCommand",
+    "char": "a"
+  },
+  "b": {
+    "type": "KeyCommand",
+    "char": "b"
+  },
+  "c": {
+    "type": "KeyCommand",
+    "char": "c"
+  },
+  "ctrl++": {
+    "type": "VolumeUpCommand",
+    "step": 20
+  },
+  "ctrl+-": {
+    "type": "VolumeDownCommand",
+    "step": 20
+  },
+  "ctrl+p": {
+    "type": "MediaPlayerCommand"
+  },
+  "d": {
+    "type": "KeyCommand",
+    "char": "d"
+  },
+  "dd": {
+    "type": "Key1Command",
+    "char": "d"
+  }
+}
